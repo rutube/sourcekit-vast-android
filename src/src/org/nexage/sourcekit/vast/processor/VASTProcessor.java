@@ -83,7 +83,7 @@ public final class VASTProcessor {
 		}
 
 		
-		if (!VASTModelPostValidator.validate(vastModel, mediaPicker, true)) {
+		if (!VASTModelPostValidator.validate(vastModel, mediaPicker)) {
 			return VASTPlayer.ERROR_POST_VALIDATION;
 		}
 

@@ -1,5 +1,6 @@
 package org.nexage.sourcekit.vast;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
@@ -16,124 +17,19 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class DefaultMediaPickerTest {
 
-	@Test
-	public void testMimeTypeValid() {
+	private static BigInteger INVALID_MEDIAFILE_DIMENSION = new BigInteger("999999");
 
-		// test to check for valid mime type
+	@Test
+	public void testArea() {
+
 		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
 		VASTMediaFile res = null;
 
-		VASTMediaFile m1 = new VASTMediaFile();
-		m1.setDelivery("progressive");
-		m1.setType("video/mp4");
-		m1.setWidth(new BigInteger("100"));
-		m1.setHeight(new BigInteger("100"));
-		m1.setId("1");
-
-		VASTMediaFile m2 = new VASTMediaFile();
-		m2.setDelivery("progressive");
-		m2.setType("video/x-mp4");
-		m2.setWidth(new BigInteger("100"));
-		m2.setHeight(new BigInteger("100"));
-		m2.setId("1");
-
-		
-		List<VASTMediaFile> lst1 = new ArrayList<VASTMediaFile>();
-		List<VASTMediaFile> lst2 = new ArrayList<VASTMediaFile>();
-
-		lst1.add(m1);
-		lst2.add(m2);
-
-		res = picker.pickVideo(lst1);
-		assertTrue(res.getId().equals("1"));
-		
-		
-		res = picker.pickVideo(lst2);
-		assertTrue(res.getId().equals("1"));
-	}
+		VASTMediaFile m1 = createMediaFile("video/mp4", "http://linkToSomeVideo.com/1", new BigInteger("100"), new BigInteger("100"));
+		VASTMediaFile m2 = createMediaFile("video/x-mp4", "http://linkToSomeVideo.com/2", new BigInteger("500"), new BigInteger("500"));
+		VASTMediaFile m3 = createMediaFile("video/mp4", "http://linkToSomeVideo.com/3", new BigInteger("300"), new BigInteger("50"));
+		VASTMediaFile m4 = createMediaFile("video/mp4", "http://linkToSomeVideo.com/4", new BigInteger("30"), new BigInteger("50"));
 	
-	@Test
-	public void testMimeTypeInvalid() {
-
-		// test for invalid mime types
-		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
-		VASTMediaFile res = null;
-
-		VASTMediaFile m1 = new VASTMediaFile();
-		m1.setDelivery("progressive");
-		m1.setType("image/mp4");
-		m1.setWidth(new BigInteger("100"));
-		m1.setHeight(new BigInteger("100"));
-		m1.setId("1");
-
-		VASTMediaFile m2 = new VASTMediaFile();
-		m2.setDelivery("progressive");
-		m2.setType("");
-		m2.setWidth(new BigInteger("100"));
-		m2.setHeight(new BigInteger("100"));
-		m2.setId("1");
-		
-		VASTMediaFile m3 = new VASTMediaFile();
-		m3.setDelivery("progressive");
-		m3.setType("abc");
-		m3.setWidth(new BigInteger("100"));
-		m3.setHeight(new BigInteger("100"));
-		m3.setId("1");
-
-		
-		List<VASTMediaFile> lst1 = new ArrayList<VASTMediaFile>();
-		List<VASTMediaFile> lst2 = new ArrayList<VASTMediaFile>();
-		List<VASTMediaFile> lst3 = new ArrayList<VASTMediaFile>();
-
-		lst1.add(m1);
-		lst2.add(m2);
-		lst3.add(m3);
-
-		res = picker.pickVideo(lst1);
-		assertNull(res);
-		
-		res = picker.pickVideo(lst2);
-		assertNull(res);
-		
-		res = picker.pickVideo(lst3);
-		assertNull(res);
-	}
-	
-	@Test
-	public void testArea1() {
-
-		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
-		VASTMediaFile res = null;
-
-		VASTMediaFile m1 = new VASTMediaFile();
-		m1.setDelivery("progressive");
-		m1.setType("video/mp4");
-		m1.setWidth(new BigInteger("100"));
-		m1.setHeight(new BigInteger("100"));
-		m1.setId("1");
-
-		VASTMediaFile m2 = new VASTMediaFile();
-		m2.setDelivery("progressive");
-		m2.setType("video/x-mp4");
-		m2.setWidth(new BigInteger("102"));
-		m2.setHeight(new BigInteger("102"));
-		m2.setId("2");
-		
-		VASTMediaFile m3 = new VASTMediaFile();
-		m3.setDelivery("progressive");
-		m3.setType("video/mp4");
-		m3.setWidth(new BigInteger("200"));
-		m3.setHeight(new BigInteger("1"));
-		m3.setId("3");
-
-		VASTMediaFile m4 = new VASTMediaFile();
-		m4.setDelivery("progressive");
-		m4.setType("video/x-mp4");
-		m4.setWidth(new BigInteger("10"));
-		m4.setHeight(new BigInteger("10"));
-		m4.setId("4");
-
-		
 		List<VASTMediaFile> lst = new ArrayList<VASTMediaFile>();
 		
 		lst.add(m1);
@@ -142,98 +38,291 @@ public class DefaultMediaPickerTest {
 		lst.add(m4);
 
 		res = picker.pickVideo(lst);
-		assertTrue(res.getId().equals("1"));
+		
+		assertThat(res, notNullValue());
+		assertThat(res.getValue(), equalTo("http://linkToSomeVideo.com/1"));
+		
 	}
 	
+
 	@Test
-	public void testArea2() {
+	public void testValidMediaFileList() {
 
 		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
 		VASTMediaFile res = null;
 
-		VASTMediaFile m1 = new VASTMediaFile();
-		m1.setDelivery("progressive");
-		m1.setType("video/mp4");
-		m1.setWidth(new BigInteger("101"));
-		m1.setHeight(new BigInteger("101"));
-		m1.setId("1");
+		//valid
+		VASTMediaFile m1 = createMediaFile("video/mp4", "http://linkToSomeVideo.com/1", new BigInteger("100"), new BigInteger("100"));
+	
 
-		VASTMediaFile m2 = new VASTMediaFile();
-		m2.setDelivery("progressive");
-		m2.setType("video/x-mp4");
-		m2.setWidth(new BigInteger("102"));
-		m2.setHeight(new BigInteger("102"));
-		m2.setId("2");
+		//missing type
+		VASTMediaFile m2 = createMediaFile(null, "http://linkToSomeVideo.com/2", new BigInteger("100"), new BigInteger("100"));
 		
-		VASTMediaFile m3 = new VASTMediaFile();
-		m3.setDelivery("progressive");
-		m3.setType("video/mp4");
-		m3.setWidth(new BigInteger("200"));
-		m3.setHeight(new BigInteger("1"));
-		m3.setId("3");
-
-		VASTMediaFile m4 = new VASTMediaFile();
-		m4.setDelivery("progressive");
-		m4.setType("video/x-mp4");
-		m4.setWidth(new BigInteger("10"));
-		m4.setHeight(new BigInteger("10"));
-		m4.setId("4");
-
+		//missing height
+		VASTMediaFile m3 = createMediaFile("video/mp4", "http://linkToSomeVideo.com/1", null, new BigInteger("100"));
 		
-		List<VASTMediaFile> lst = new ArrayList<VASTMediaFile>();
 		
-		lst.add(m1);
-		lst.add(m2);
-		lst.add(m3);
-		lst.add(m4);
+		//missing width
+		VASTMediaFile m4 = createMediaFile("video/mp4", "http://linkToSomeVideo.com/1", new BigInteger("100"), null);
+		
+		//missing url
+		VASTMediaFile m5 = createMediaFile("video/mp4", null, new BigInteger("100"), new BigInteger("100"));
 
-		res = picker.pickVideo(lst);
-		assertTrue(res.getId().equals("1"));
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(m1);
+		mediaFiles.add(m2);
+		mediaFiles.add(m3);
+		mediaFiles.add(m4);
+		mediaFiles.add(m5);
+		
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, notNullValue());
+		assertThat(res.getValue(), equalTo("http://linkToSomeVideo.com/1"));
+		
+		
 	}
 	
 	@Test
-	public void testArea3() {
-
+	public void testMissingMediaTypeAttribute() {
 		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
 		VASTMediaFile res = null;
-
-		VASTMediaFile m1 = new VASTMediaFile();
-		m1.setDelivery("progressive");
-		m1.setType("video/mp4");
-		m1.setWidth(new BigInteger("103"));
-		m1.setHeight(new BigInteger("103"));
-		m1.setId("1");
-
-		VASTMediaFile m2 = new VASTMediaFile();
-		m2.setDelivery("progressive");
-		m2.setType("video/x-mp4");
-		m2.setWidth(new BigInteger("102"));
-		m2.setHeight(new BigInteger("102"));
-		m2.setId("2");
+	
+		//missing type
+		VASTMediaFile mediaFile = createMediaFile(null, "http://linkToSomeVideo.com/1", new BigInteger("100"), new BigInteger("100"));
 		
-		VASTMediaFile m3 = new VASTMediaFile();
-		m3.setDelivery("progressive");
-		m3.setType("video/mp4");
-		m3.setWidth(new BigInteger("200"));
-		m3.setHeight(new BigInteger("1"));
-		m3.setId("3");
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
 
-		VASTMediaFile m4 = new VASTMediaFile();
-		m4.setDelivery("progressive");
-		m4.setType("video/x-mp4");
-		m4.setWidth(new BigInteger("101"));
-		m4.setHeight(new BigInteger("101"));
-		m4.setId("4");
+		mediaFiles.add(mediaFile);
 
-		
-		List<VASTMediaFile> lst = new ArrayList<VASTMediaFile>();
-		
-		lst.add(m1);
-		lst.add(m2);
-		lst.add(m3);
-		lst.add(m4);
-
-		res = picker.pickVideo(lst);
-		assertTrue(res.getId().equals("4"));
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());				
 	}
+	
+	@Test
+	public void testEmptyMediaTypeAttribute() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+	
+		//missing type
+		VASTMediaFile mediaFile = createMediaFile("", "http://linkToSomeVideo.com/1", new BigInteger("100"), new BigInteger("100"));
+		
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mediaFile);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());				
+	}
+	
+	@Test
+	public void testInvalidMediaTypeAttribute() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+	
+		//missing type
+		VASTMediaFile mediaFile = createMediaFile("123ABC", "http://linkToSomeVideo.com/1", new BigInteger("100"), new BigInteger("100"));
+		
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mediaFile);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());				
+	}
+	
+	@Test
+	public void testMissingWidthAttribute() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+	
+		//missing width
+		VASTMediaFile mediaFile = createMediaFile("video/mp4", "http://linkToSomeVideo.com/1", new BigInteger("100"), null);
+
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mediaFile);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());			
+	}
+	
+
+	@Test
+	public void testInvalidWidthAttribute() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+	
+		//missing width
+		VASTMediaFile mediaFile = createMediaFile("video/mp4", "http://linkToSomeVideo.com/1", new BigInteger("100"), INVALID_MEDIAFILE_DIMENSION);
+
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mediaFile);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());			
+	}
+	
+	
+	@Test
+	public void testMissingHeightAttribute() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+	
+		//missing height
+		VASTMediaFile mediaFile = createMediaFile("video/mp4", "http://linkToSomeVideo.com/1", null, new BigInteger("100"));
+
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mediaFile);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());		
+	}
+	
+	@Test
+	public void testInvalidHeightAttribute() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+	
+		//missing height
+		VASTMediaFile mediaFile = createMediaFile("video/mp4", "http://linkToSomeVideo.com/1", INVALID_MEDIAFILE_DIMENSION, new BigInteger("100"));
+
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mediaFile);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());		
+	}
+	
+	@Test
+	public void testMissingURLAttribute() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+	
+		//missing url
+		VASTMediaFile mediaFile = createMediaFile("video/mp4", null, new BigInteger("100"), new BigInteger("100"));
+		
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mediaFile);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());				
+	}
+	
+	
+	@Test
+	public void testInvalidURLAttribute() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+	
+		//missing url
+		VASTMediaFile mediaFile = createMediaFile("video/mp4", "", new BigInteger("100"), new BigInteger("100"));
+		
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mediaFile);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, nullValue());				
+	}
+	
+	
+	@Test
+	public void testMp4Type() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+		String type = "video/mp4";
+	
+		List<VASTMediaFile> mediaFiles = createMediaFilesByType(type);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, notNullValue());
+		assertThat(res.getType(), equalTo(type));		
+	}
+	
+	@Test
+	public void test3gppType() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+		String type = "video/3gpp";
+	
+		List<VASTMediaFile> mediaFiles = createMediaFilesByType(type);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, notNullValue());
+		assertThat(res.getType(), equalTo(type));			
+	}
+	
+	@Test
+	public void testMp2tType() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+		String type = "video/mp2t";
+	
+		List<VASTMediaFile> mediaFiles = createMediaFilesByType(type);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, notNullValue());
+		assertThat(res.getType(), equalTo(type));			
+	}
+	
+	@Test
+	public void testMatroskaType() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+		String type = "video/matroska";
+	
+		List<VASTMediaFile> mediaFiles = createMediaFilesByType(type);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, notNullValue());
+		assertThat(res.getType(), equalTo(type));			
+	}
+	
+	@Test
+	public void testWebmType() {
+		VASTMediaPicker picker = new DefaultMediaPicker(100, 100);
+		VASTMediaFile res = null;
+		String type = "video/webm";
+	
+		List<VASTMediaFile> mediaFiles = createMediaFilesByType(type);
+
+		res = picker.pickVideo(mediaFiles);
+		assertThat(res, notNullValue());
+		assertThat(res.getType(), equalTo(type));			
+	}
+	
+	private List<VASTMediaFile> createMediaFilesByType (String type) {
+		
+		VASTMediaFile mf1 = createMediaFile(type, "http://testVideo.com", new BigInteger("100"), new BigInteger("100"));
+		VASTMediaFile mf2 = createMediaFile("a", "http://badtype.com/a", new BigInteger("100"), new BigInteger("100"));
+		VASTMediaFile mf3 = createMediaFile("b", "http://badtype.com/b", new BigInteger("100"), new BigInteger("100"));
+		VASTMediaFile mf4 = createMediaFile("c", "http://badtype.com/c", new BigInteger("100"), new BigInteger("100"));
+		
+		List<VASTMediaFile> mediaFiles = new ArrayList<VASTMediaFile>();
+
+		mediaFiles.add(mf1);
+		mediaFiles.add(mf2);
+		mediaFiles.add(mf3);
+		mediaFiles.add(mf4);
+		
+		return mediaFiles;
+		
+	}
+	private VASTMediaFile createMediaFile(String type, String url, BigInteger height, BigInteger width) {
+		
+		VASTMediaFile mediaFile = new VASTMediaFile();
+		mediaFile.setType(type);
+		mediaFile.setValue(url);
+		mediaFile.setWidth(width);
+		mediaFile.setHeight(height);
+		
+		return mediaFile;			
+		
+	}
+	
 }

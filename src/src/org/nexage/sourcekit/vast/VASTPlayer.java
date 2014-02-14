@@ -27,7 +27,7 @@ public class VASTPlayer {
 
     private static final String TAG = "VASTPlayer";
 
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.0.1";
 
     // errors that can be returned in the vastError callback method of the
     // VASTPlayerListener
@@ -78,7 +78,9 @@ public class VASTPlayer {
                      	return;
                     } finally {
                         try {
-                            in.close();
+                        	if (in != null) {
+                        		in.close();
+                        	}
                         } catch (IOException e) {
                 			// ignore
                         }

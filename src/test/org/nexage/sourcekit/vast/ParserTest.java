@@ -14,6 +14,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -95,13 +97,24 @@ public class ParserTest {
 		return sb.toString();
 	}
 
+	private String getFileAsString(String fileName) throws Exception {
+
+		URL url2 = getClass().getClassLoader().getResource(fileName);
+
+		String file = new String(Files.readAllBytes(Paths.get(url2.toURI())));
+
+		return file;
+	}
+	
+	
 	@Test
 	public void getTrackingsInlineLinearTest() throws Exception {
 
 		int totalEvents = 0;
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_inline_linear.xml"));
+		String file = getFileAsString("resources/vast_liverail_linear_comp.xml");
+		int err = parser.process(file);
+
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 		VASTModel mVastDto = parser.getModel();
 		HashMap<TRACKING_EVENTS_TYPE, List<String>> trackings = mVastDto
@@ -122,15 +135,15 @@ public class ParserTest {
 
 		}
 
-		assertThat(totalEvents, equalTo(9));
+		assertThat(totalEvents, equalTo(11));
 	}
 
 	@Test
 	public void getTrackingsWrapperLinearTest() throws Exception {
 
 		int totalEvents = 0;
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_wrapper_linear_1.xml"));
+		String file = getFileAsString("resources/vast_wrapper_linear_1.xml");
+		int err = parser.process(file);
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -158,8 +171,8 @@ public class ParserTest {
 	@Test
 	public void getMediaFilesInlineLinearTest() throws Exception {
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_inline_linear.xml"));
+		String file = getFileAsString("resources/vast_liverail_linear_comp.xml");
+		int err = parser.process(file);	
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -173,14 +186,15 @@ public class ParserTest {
 			System.out.println(mf.toString());
 		}
 
-		assertThat(mediaFiles.size(), equalTo(1));
+		assertThat(mediaFiles.size(), equalTo(12));
 	}
 
 	@Test
 	public void getVideoClicksInlineLinearTest() throws Exception {
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_inline_linear.xml"));
+		String file = getFileAsString("resources/vast_doubleclick_inline_comp.xml");
+		int err = parser.process(file);
+		
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -193,14 +207,14 @@ public class ParserTest {
 		assertThat(videoClicks.getClickTracking().size(), equalTo(1));
 		assertThat(videoClicks.getCustomClick().size(), equalTo(0));
 		assertThat(videoClicks.getClickThrough(),
-				equalTo("http://www.tremormedia.com"));
+				equalTo("http://google.com"));
 	}
 
 	@Test
 	public void getDurationInlineLinearTest() throws Exception {
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_inline_linear.xml"));
+		String file = getFileAsString("resources/vast_liverail_linear_comp.xml");
+		int err = parser.process(file);
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -208,14 +222,15 @@ public class ParserTest {
 
 		System.out.println("duration=" + duration);
 
-		assertThat(duration, equalTo("00:00:30"));
+		assertThat(duration, equalTo("00:00:09"));
 	}
 
 	@Test
 	public void validInlineLinearDocParserTest() throws Exception {
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_inline_linear.xml"));
+		String file = getFileAsString("resources/vast_liverail_linear_comp.xml");
+		int err = parser.process(file);
+		
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -224,9 +239,9 @@ public class ParserTest {
 
 	@Test
 	public void multipleMediaFileTest() throws Exception {
-
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_inline_linear.xml"));
+		String file = getFileAsString("resources/vast_liverail_linear_comp.xml");
+		int err = parser.process(file);
+		
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -240,14 +255,15 @@ public class ParserTest {
 			System.out.println(mf.toString());
 		}
 
-		assertThat(mediaFiles.size(), equalTo(1));
+		assertThat(mediaFiles.size(), equalTo(12));
 	}
 
 	@Test
 	public void impressionTest() throws Exception {
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_inline_linear.xml"));
+		String file = getFileAsString("resources/vast_liverail_linear_comp.xml");
+		int err = parser.process(file);
+		
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -266,8 +282,9 @@ public class ParserTest {
 	@Test
 	public void getErrorUrlTest() throws Exception {
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com.s3.amazonaws.com/testads/SDK/vast/mmk/vast_inline_linear.xml"));
+		String file = getFileAsString("resources/vast_liverail_linear_comp.xml");
+		int err = parser.process(file);
+		
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -275,14 +292,15 @@ public class ParserTest {
 
 		System.out.println("Error url size=" + errorUrl.size());
 
-		assertThat(errorUrl.get(0), equalTo("http://files.nexage.com/error"));
+		assertThat(errorUrl.get(0), equalTo("http://t4.liverail.com/?metric=error&erc=[ERRORCODE]&pos=0&coid=135&pid=1331&nid=1331&oid=229&olid=2291331&cid=7969&tpcid=&vid=&amid=&cc=default&pp=&vv=&tt=&sg=&tsg=&pmu=0&pau=0&psz=0&ctx=&tctx=&coty=0&adt=0&did=&buid=&scen=&url=&cb=4641.173.48.24.154.0.690&ver=1&w=&wy=&x=&y=&xy=&redirect="));
 	}
 
 	@Test
 	public void getErrorUrlslTest() throws Exception {
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com/testads/SDK/vast/wrapper/wrapper1.xml"));
+		String file = getFileAsString("resources/vast_wrapper_linear_1.xml");
+		int err = parser.process(file);
+				
 		Assert.assertEquals(VASTPlayer.ERROR_NONE, err);
 
 		VASTModel mVastDto = parser.getModel();
@@ -290,19 +308,17 @@ public class ParserTest {
 
 		System.out.println("Error url size=" + errorUrl.size());
 
-		assertThat(errorUrl.size(), equalTo(3));
+		assertThat(errorUrl.size(), equalTo(2));
 
-		assertThat(
-				errorUrl.get(0),
-				equalTo("http://dev.smartclip.net/media/pics/testtracker_error.gif?1945807145;wrapper3"));
+		assertThat(errorUrl.get(0),equalTo("http://myErrorURL/wrapper/error"));
 	}
 
 	@Test
 	public void getMediaFileWrapperLinearTest() throws Exception {
 
-		int err = parser
-				.process(getURLContent("http://files.nexage.com/testads/SDK/vast/wrapper/wrapper1.xml"));
-
+		String file = getFileAsString("resources/vast_wrapper_linear_1.xml");
+		int err = parser.process(file);
+		
 		assertThat(err, equalTo(VASTPlayer.ERROR_NONE));
 		
 		VASTModel mVastDto = parser.getModel();

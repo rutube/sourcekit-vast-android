@@ -7,6 +7,7 @@
 
 package org.nexage.sourcekit.util;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -16,11 +17,13 @@ import org.nexage.sourcekit.vast.model.VASTMediaFile;
 import org.nexage.sourcekit.vast.processor.VASTMediaPicker;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
 public class DefaultMediaPicker implements VASTMediaPicker {
 	
 	private static final String TAG = "DefaultMediaPicker";
+    private static final int maxPixels = 5000;
 
 	// These are the Android supported MIME types, see http://developer.android.com/guide/appendix/media-formats.html#core (as of API 18)
 	String SUPPORTED_VIDEO_TYPE_REGEX = "video/.*(?i)(mp4|3gpp|mp2t|webm|matroska)";
@@ -41,6 +44,95 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 		setDeviceWidthHeight(width, height);
 	}
 
+
+	@Override
+	// given a list of MediaFiles, select the most appropriate one.
+	public VASTMediaFile pickVideo(List<VASTMediaFile> mediaFiles) {
+		//make sure that the list of media files contains the correct attributes
+		if  (mediaFiles == null || prefilterMediaFiles(mediaFiles) == 0) {
+			return null;
+		}			 
+		Collections.sort(mediaFiles, new AreaComparator());
+		VASTMediaFile mediaFile = getBestMatch(mediaFiles);
+		return mediaFile;
+	}
+	
+	/*
+	 * This method filters the list of mediafiles and return the count.
+	 * Validate that the media file objects contain the required attributes for the Default Media Picker processing.
+	 * 
+	 * 		Required attributes:
+	 * 			1. type
+	 * 			2. height
+	 * 			3. width 
+	 * 			4. url
+	 */
+
+	private int prefilterMediaFiles(List<VASTMediaFile> mediaFiles) {
+		
+		Iterator<VASTMediaFile> iter = mediaFiles.iterator();
+		
+		while (iter.hasNext()) {
+
+			VASTMediaFile mediaFile = iter.next();
+
+			// type attribute
+			String type = mediaFile.getType();
+			if (TextUtils.isEmpty(type)) {
+				SourceKitLogger.d(TAG, "Validator error: mediaFile type empty");
+				iter.remove();
+				continue;
+			}
+
+			// Height attribute
+			BigInteger height = mediaFile.getHeight();
+
+			if (null == height) {
+				SourceKitLogger
+						.d(TAG, "Validator error: mediaFile height null");
+				iter.remove();
+				continue;
+			} else {
+				int videoHeight = height.intValue();
+				if (!(0 < videoHeight && videoHeight < maxPixels)) {
+					SourceKitLogger.d(TAG,
+							"Validator error: mediaFile height invalid: "
+									+ videoHeight);
+					iter.remove();
+					continue;
+				}
+			}
+
+			// width attribute
+			BigInteger width = mediaFile.getWidth();
+			if (null == width) {
+				SourceKitLogger.d(TAG, "Validator error: mediaFile width null");
+				iter.remove();
+				continue;
+			} else {
+				int videoWidth = width.intValue();
+				if (!(0 < videoWidth && videoWidth < maxPixels)) {
+					SourceKitLogger.d(TAG,
+							"Validator error: mediaFile width invalid: "
+									+ videoWidth);
+					iter.remove();
+					continue;
+				}
+			}
+
+			// mediaFile url
+			String url = mediaFile.getValue();
+			if (TextUtils.isEmpty(url)) {
+				SourceKitLogger.d(TAG, "Validator error: mediaFile url empty");
+				iter.remove();
+				continue;
+			}
+		}
+		
+		return mediaFiles.size();
+	}
+
+	
 	private void setDeviceWidthHeight() {
 
 		// get the device width and height of the device using the context
@@ -50,7 +142,7 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 		deviceArea = deviceWidth * deviceHeight;
 	}
 	
-	public void setDeviceWidthHeight(int width, int height) {
+	private void setDeviceWidthHeight(int width, int height) {
 
 		this.deviceWidth = width;
 		this.deviceHeight = height;
@@ -106,15 +198,5 @@ public class DefaultMediaPicker implements VASTMediaPicker {
 		return null;
 	}
 
-	@Override
-	public VASTMediaFile pickVideo(List<VASTMediaFile> list) {
-		
-		// given a list of MediaFiles, select the most appropriate one.
-		// Use any one of the Comparators defined above.
-		
-		Collections.sort(list, new AreaComparator());
 
-		return getBestMatch(list);
-
-	}
 }

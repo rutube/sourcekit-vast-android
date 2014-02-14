@@ -48,6 +48,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
@@ -109,6 +110,8 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	private boolean mIsProcessedImpressions = false;
 	private int mCurrentVideoPosition;
 	private int mQuartile = 0;
+	
+	private ProgressBar mProgressBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -241,9 +244,34 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		this.createInfoButton(size);
 
 		this.setContentView(mRootLayout);
+		
+		//this.createProgressDialog();
+		this.createProgressBar();
 
 	}
 
+	private void createProgressBar() {
+		LayoutParams params = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.MATCH_PARENT,
+				RelativeLayout.LayoutParams.WRAP_CONTENT);	
+		params.addRule(RelativeLayout.CENTER_IN_PARENT);
+		
+		mProgressBar = new ProgressBar(this);
+		mProgressBar.setLayoutParams(params);
+		
+		mRootLayout.addView(mProgressBar);
+		mProgressBar.setVisibility(View.GONE);					
+	}
+
+	private void showProgressBar() {
+		mProgressBar.setVisibility(View.VISIBLE);	
+	}
+	
+	private void hideProgressBar() {
+		mProgressBar.setVisibility(View.GONE);	
+	}
+
+	
 	private void createRootLayout(LayoutParams params) {
 
 		mRootLayout = new RelativeLayout(this);
@@ -522,8 +550,9 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
-		SourceKitLogger.d(TAG, "surfaceCreated -- (MediaPlayer callback)");
+		SourceKitLogger.d(TAG, "surfaceCreated -- (SurfaceHolder callback)");
 		try {
+			this.showProgressBar();
 			mMediaPlayer.setDisplay(mSurfaceHolder);
 			String url = mVastModel.getPickedMediaFileURL();
 
@@ -539,14 +568,14 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 	public void surfaceChanged(SurfaceHolder surfaceHolder, int arg1, int arg2,
 			int arg3) {
 		SourceKitLogger.d(TAG,
-				"entered surfaceChanged -- (MediaPlayer callback)");
+				"entered surfaceChanged -- (SurfaceHolder callback)");
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
 		SourceKitLogger
 				.d(TAG,
-						"entered surfaceDestroyed -- (MediaPlayer callback)");
+						"entered surfaceDestroyed -- (SurfaceHolder callback)");
 		cleanUpMediaPlayer();
 
 	}
@@ -570,6 +599,8 @@ public class VASTActivity extends Activity implements OnCompletionListener,
 		calculateAspectRatio();
 
 		mMediaPlayer.start();
+		
+		this.hideProgressBar();
 
 		if (mIsVideoPaused) {
 			SourceKitLogger.d(TAG, "pausing video");
